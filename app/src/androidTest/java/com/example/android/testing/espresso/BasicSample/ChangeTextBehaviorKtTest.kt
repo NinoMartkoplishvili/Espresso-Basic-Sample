@@ -61,29 +61,46 @@ class ChangeTextBehaviorKtTest {
      * [androidx.test.rule.ActivityTestRule].
      */
     @get:Rule var activityScenarioRule = activityScenarioRule<MainActivity>()
-    val STRING_TO_BE_TYPED = "I like mobile testing"
+
+    val favoriteFood = "Khachapuri"
+
+    val firstMovie = "The Shawshank Redemption"
+    val secondMovie = "Interstellar"
 
     @Test
-    fun changeText_sameActivity() {
+    fun favoriteFoodIsDisplayed() {
+        inputField.typeText(favoriteFood)
+        onView(inputField).perform(closeSoftKeyboard())
 
-        // Type text and then press the button.
-        onView(withId(R.id.editTextUserInput))
-                .perform(typeText(STRING_TO_BE_TYPED), closeSoftKeyboard())
-        onView(withId(R.id.changeTextBt)).perform(click())
+        changeTextBtn.tap()
 
-
-        // Check that the text was changed.
-        onView(withId(R.id.textToBeChanged)).check(matches(withText(STRING_TO_BE_TYPED)))
+        onView(titleText).check(matches(withText(favoriteFood))).check(matches(ViewMatchers.isDisplayed()))
     }
 
     @Test
-    fun changeText_newActivity() {
-        // Type text and then press the button.
-        onView(withId(R.id.editTextUserInput)).perform(typeText(STRING_TO_BE_TYPED),
-                closeSoftKeyboard())
-        onView(withId(R.id.activityChangeTextBtn)).perform(click())
+    fun favoriteMoviesAreDisplayedInBothActivities() {
+        inputField.typeText(firstMovie)
+        onView(inputField).perform(closeSoftKeyboard())
 
-        // This view is in a different Activity, no need to tell Espresso.
-        onView(withId(R.id.show_text_view)).check(matches(withText(STRING_TO_BE_TYPED)))
+        changeTextBtn.tap()
+
+        onView(titleText).check(matches(withText(firstMovie))).check(matches(ViewMatchers.isDisplayed()))
+        onView(inputField).perform(clearText())
+
+        inputField.typeText(secondMovie)
+        onView(inputField).perform(closeSoftKeyboard())
+
+        openActivityBtn.tap()
+
+        onView(shownText).check(matches(withText(secondMovie))).check(matches(ViewMatchers.isDisplayed()))
     }
+
+    companion object {
+        val inputField: Matcher<View> by lazy { withId(R.id.editTextUserInput) }
+        val changeTextBtn: Matcher<View> by lazy { withId(R.id.changeTextBt) }
+        val titleText: Matcher<View> by lazy { withId(R.id.textToBeChanged) }
+        val openActivityBtn: Matcher<View> by lazy { withId(R.id.activityChangeTextBtn) }
+        val shownText: Matcher<View> by lazy { withId(R.id.show_text_view) }
+    }
+
 }
